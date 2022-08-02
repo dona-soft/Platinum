@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:platinum/screens/homePage.dart';
+import 'package:platinum/features/workouts/presentation/screens/home_page.dart';
+
 
 void main() {
   runApp(const MyApp());
