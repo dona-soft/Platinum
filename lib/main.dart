@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:platinum/features/workouts/presentation/screens/home_page.dart';
-
+import 'package:platinum/core/themes/main_theme.dart';
+import 'package:platinum/features/auth/login_screen.dart';
+import 'package:platinum/features/person/presentation/screens/home_screen.dart';
+import 'package:platinum/features/person/presentation/screens/loading_screen.dart';
+import 'package:platinum/features/person/presentation/screens/payments_screen.dart';
+import 'package:platinum/features/person/presentation/screens/training_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -12,41 +16,21 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Platinum',
+      theme: ThemeData(
+        primarySwatch: Colors.orange,
+        primaryColor: LightTheme.primaryColorLight,
+      ),
       initialRoute: '/',
       routes: {
-        '/homepage': (context) => const HomePage(),
+        '/': (_) => LoginScreen(),
+        '/home': (_) => const HomeScreen(),
+        '/home/training': (context) =>
+            TrainingScreen(trainingProgram: [1, 2, 3]),
+        '/home/payment': (context) => const PaymentScreen(),
+        'loading': (context) => LoadingScreen(),
       },
-      home: const SplashScreen(),
-    );
-  }
-}
-
-class SplashScreen extends StatefulWidget {
-  const SplashScreen({Key? key}) : super(key: key);
-
-  @override
-  State<SplashScreen> createState() => _SplashScreenState();
-}
-
-class _SplashScreenState extends State<SplashScreen> {
-  void checkIfLoggedIn() async {
-    await Future.delayed(const Duration(seconds: 2));
-    Navigator.pushReplacementNamed(context, '/homepage');
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    checkIfLoggedIn();
-    return Scaffold(
-      body: Center(
-        child: Column(
-          children: const [
-            Icon(Icons.adb),
-            CircularProgressIndicator(),
-          ],
-        ),
-      ),
+      title: 'Platinum',
+      
     );
   }
 }

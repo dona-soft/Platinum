@@ -1,0 +1,7 @@
+0xFFFFFF    white
+
+
+0xC14E00    Orange
+
+
+0xEFF2F7    dWhite
