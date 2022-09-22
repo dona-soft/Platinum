@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:platinum/core/constants/strings.dart';
+import 'package:platinum/core/services/notifications.dart';
 import 'package:platinum/core/themes/main_theme.dart';
 import 'package:platinum/features/person/presentation/screens/status_screen.dart';
 import 'package:platinum/features/person/presentation/screens/profile_screen.dart';
@@ -8,7 +9,9 @@ import 'package:platinum/features/person/presentation/widgets/home_screen/med_li
 import 'package:platinum/features/person/presentation/widgets/home_screen/week_days_row.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  HomeScreen({Key? key}) : super(key: key);
+
+  final notificationService = LocalNotificationService();
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +68,14 @@ class HomeScreen extends StatelessWidget {
                                 child: IconButton(
                                   color: Colors.white,
                                   splashRadius: 25,
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    notificationService.showNotification(
+                                      id: 1,
+                                      title: 'Hello Mathafackaaaa',
+                                      body:
+                                          'this message is impolite but we do not give a shit about it :)',
+                                    );
+                                  },
                                   icon: Icon(
                                     Icons.notifications_rounded,
                                   ),

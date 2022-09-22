@@ -23,14 +23,13 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (_) => LoginScreen(),
-        '/home': (_) => const HomeScreen(),
+        '/home': (_) => HomeScreen(),
         '/home/training': (context) =>
             TrainingScreen(trainingProgram: [1, 2, 3]),
-        '/home/payment': (context) => const PaymentScreen(),
+        '/home/payment': (context) => PaymentScreen(),
         'loading': (context) => LoadingScreen(),
       },
       title: 'Platinum',
-      
     );
   }
 }
