@@ -21,11 +21,11 @@ class TrainerModel extends Trainer {
     );
   }
 
-  Map<String, dynamic> toMap(TrainerModel trainerModel) {
+  Map<String, dynamic> toMap() {
     return {
-      'fullName': trainerModel.fullName,
-      'phoneNum':trainerModel.phoneNum,
-      'genderMale': trainerModel.genderMale,
+      'fullName': fullName,
+      'phoneNum': phoneNum,
+      'genderMale': genderMale,
     };
   }
 }

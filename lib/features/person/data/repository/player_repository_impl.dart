@@ -12,9 +12,6 @@ import 'package:platinum/core/errors/failures.dart';
 import 'package:dartz/dartz.dart';
 import 'package:platinum/features/person/domain/repository/repository.dart';
 
-typedef ResultFunc = Future<List<Object>> Function();
-typedef CacheFunc = Future<Unit> Function(List<Object> list);
-
 class PlayerRepositoryImpl implements PlayerRepository {
   final PlayerLocalSource localSource;
   final PlayerRemoteSource remoteSource;
@@ -27,18 +24,24 @@ class PlayerRepositoryImpl implements PlayerRepository {
   });
 
   @override
-  Future<Either<Failure, List<TrainingProgram>>> getAllPrograms() async {
+  Future<Either<Failure, TrainingProgram>> getCurrentProgram() {
+    // TODO: implement getCurrentProgram
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Either<Failure, List<Training>>> getAllTrainings() async {
     if (await networkInfo.isConnected) {
       try {
-        final remoteResult = await remoteSource.getAllPrograms();
-        localSource.savePrograms(remoteResult);
+        final remoteResult = await remoteSource.getAllTrainings();
+        localSource.saveAllTrainings(remoteResult);
         return Right(remoteResult);
       } on ServerException {
         return Left(ServerFailure());
       }
     } else {
       try {
-        final localResult = await localSource.getAllPrograms();
+        final localResult = await localSource.getAllTrainings();
         return Right(localResult);
       } on EmptyCacheException {
         return Left(EmptyCacheFailure());
@@ -84,12 +87,6 @@ class PlayerRepositoryImpl implements PlayerRepository {
         return Left(EmptyCacheFailure());
       }
     }
-
-    // final res = resfun(
-    //     () => remoteSource.getAllOffers(),
-    //     (list) => localSource.saveOffers(list as List<Offer>),
-    //     () => localSource.getAllOffers());
-    // return res;
   }
 
   @override
@@ -146,34 +143,5 @@ class PlayerRepositoryImpl implements PlayerRepository {
   Future<Either<Failure, Unit>> updatePlayer(Player player) async {
     // TODO: seems almost identical to savePlayerInfo???
     throw UnimplementedError();
-  }
-
-  ///
-  ///
-  /// #ATTENTION: This method needs more research to guarantee no malfunctions in
-  ///   real life scenarios!!!
-  ///
-  
-  Future<Either<Failure, List<Object>>> resfun(
-    ResultFunc remoteget,
-    CacheFunc localsave,
-    ResultFunc localget,
-  ) async {
-    if (await networkInfo.isConnected) {
-      try {
-        final remoteRes = await remoteget();
-        await localsave(remoteRes);
-        return Right(remoteRes);
-      } on ServerException {
-        return Left(ServerFailure());
-      }
-    } else {
-      try {
-        final localRes = await localget();
-        return Right(localRes);
-      } on EmptyCacheException {
-        return Left(EmptyCacheFailure());
-      }
-    }
   }
 }

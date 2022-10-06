@@ -9,14 +9,16 @@ import 'package:platinum/features/person/domain/entities/player/aux/player_payme
 import 'package:sqflite/sqflite.dart';
 
 abstract class PlayerLocalSource {
-  Future<List<TrainingProgram>> getAllPrograms();
+  Future<List<Training>> getAllTrainings();
+  Future<TrainingProgram> getCurrentProgram();
   Future<List<PlayerPayment>> getAllPlayerPayments();
   Future<List<Sport>> getAllSports();
   Future<List<Offer>> getAllOffers();
   Future<PlayerModel> getPlayerInfo();
   Future<Unit> savePlayerInfo(PlayerModel player);
   Future<Unit> saveOffers(List<Offer> offers);
-  Future<Unit> savePrograms(List<TrainingProgram> tr);
+  Future<Unit> saveAllTrainings(List<Training> trainings);
+  Future<Unit> saveCurrentProgram(TrainingProgram tr);
   Future<Unit> saveSports(List<Sport> sports);
   Future<Unit> savePlayerPayments(List<PlayerPayment> payments);
 }
@@ -27,23 +29,55 @@ class PlayerLocalSourceImpl implements PlayerLocalSource {
   const PlayerLocalSourceImpl({required this.playerDatabase});
 
   @override
+  Future<TrainingProgram> getCurrentProgram() async {
+    TrainingProgram trainingProgram;
+    List<Training> temp = [];
+    List<int> trainingIds = [];
+    final result = await playerDatabase.query(PROGRAMS_TABLE);
+    final trains = await playerDatabase.query(TRAININGS_TABLE);
+    if (result.isNotEmpty) {
+      String a = result.first['trainsApiIds'].toString();
+      a.substring(1, a.length - 1).split(', ').forEach((element) {
+        trainingIds.add(int.parse(element));
+      });
+      if (temp.isNotEmpty) {
+        for (var i in trainingIds) {
+          trains.forEach(
+            (element) {
+              if (i == element['apiKey']) {
+                temp.add(Training.fromJson(element));
+              }
+            },
+          );
+        }
+        trainingProgram = TrainingProgram(
+          id: result.first['id'] as int,
+          trainingCatagory: result.first['trainingCatagory'] as String,
+          listOfTrains: temp,
+          trainsApiIds: trainingIds,
+        );
+      } else {
+        throw EmptyCacheException();
+      }
+    } else {
+      throw EmptyCacheException();
+    }
+    return trainingProgram;
+  }
+
+  @override
   Future<List<Offer>> getAllOffers() async {
     List<Offer> localOffers = [];
+
     List<Map<String, dynamic>> temp = await playerDatabase.query(OFFERS_TABLE);
     if (temp.isNotEmpty) {
       for (var i in temp) {
-        localOffers.add(
-          Offer(
-            id: i['id'],
-            name: i['name'],
-            endDate: i['endDate'],
-            percent: i['percent'],
-          ),
-        );
+        localOffers.add(Offer.fromJson(i));
       }
       return localOffers;
-    } else
+    } else {
       throw EmptyCacheException();
+    }
   }
 
   @override
@@ -53,13 +87,7 @@ class PlayerLocalSourceImpl implements PlayerLocalSource {
         await playerDatabase.query(PAYMENTS_TABLE);
     if (temp.isNotEmpty) {
       for (var i in temp) {
-        localPayments.add(
-          PlayerPayment(
-            paymentValue: i['paymentValue'],
-            description: i['discount'],
-            payDate: i['payDate'],
-          ),
-        );
+        localPayments.add(PlayerPayment.fromJson(i));
       }
       return localPayments;
     } else
@@ -72,12 +100,7 @@ class PlayerLocalSourceImpl implements PlayerLocalSource {
     List<Map<String, dynamic>> temp = await playerDatabase.query(SPORTS_TABLE);
     if (temp.isNotEmpty) {
       for (var i in temp) {
-        localSports.add(Sport(
-            id: i['id'],
-            dailyPrice: i['dailyPrice'],
-            daysInWeek: i['daysInWeek'],
-            name: i['name'],
-            price: i['price']));
+        localSports.add(Sport.fromJson(i));
       }
       return localSports;
     } else
@@ -85,19 +108,13 @@ class PlayerLocalSourceImpl implements PlayerLocalSource {
   }
 
   @override
-  Future<List<TrainingProgram>> getAllPrograms() async {
-    List<TrainingProgram> localProgram = [];
+  Future<List<Training>> getAllTrainings() async {
+    List<Training> localProgram = [];
     List<Map<String, dynamic>> temp =
-        await playerDatabase.query(PROGRAMS_TABLE);
+        await playerDatabase.query(TRAININGS_TABLE);
     if (temp.isNotEmpty) {
       for (var i in temp) {
-        localProgram.add(
-          TrainingProgram(
-            id: i['id'],
-            listOfTrains: i['listOfTrains'],
-            trainingCatagory: i['trainingCategory'],
-          ),
-        );
+        localProgram.add(Training.fromJson(i));
       }
       return localProgram;
     } else
@@ -105,10 +122,22 @@ class PlayerLocalSourceImpl implements PlayerLocalSource {
   }
 
   @override
+  Future<Unit> saveAllTrainings(List<Training> trainings) async {
+    if (playerDatabase.isOpen) {
+      for (var i in trainings) {
+        await playerDatabase.insert(TRAININGS_TABLE, i.toMap());
+      }
+      return unit;
+    } else
+      throw DataBaseException();
+  }
+
+  @override
   Future<Unit> saveOffers(List<Offer> offers) async {
     if (playerDatabase.isOpen) {
       for (var i in offers) {
-        await playerDatabase.insert(OFFERS_TABLE, i.toMap(i));
+        await playerDatabase.insert(OFFERS_TABLE, i.toMap(),
+            conflictAlgorithm: ConflictAlgorithm.replace);
       }
       return unit;
     } else {
@@ -117,11 +146,15 @@ class PlayerLocalSourceImpl implements PlayerLocalSource {
   }
 
   @override
-  Future<Unit> savePrograms(List<TrainingProgram> tr) async {
+  Future<Unit> saveCurrentProgram(TrainingProgram tr) async {
     if (playerDatabase.isOpen) {
-      for (var i in tr) {
-        await playerDatabase.insert(PROGRAMS_TABLE, i.toMap(i));
-      }
+      await playerDatabase.update(
+        TRAININGS_TABLE,
+        tr.toMap(),
+        where: '${tr.id} = ?',
+        whereArgs: [tr.id],
+      );
+
       return unit;
     } else
       throw DataBaseException();
@@ -131,7 +164,7 @@ class PlayerLocalSourceImpl implements PlayerLocalSource {
   Future<Unit> savePlayerPayments(List<PlayerPayment> payments) async {
     if (playerDatabase.isOpen) {
       for (var i in payments) {
-        await playerDatabase.insert(PAYMENTS_TABLE, i.toMap(i));
+        await playerDatabase.insert(PAYMENTS_TABLE, i.toMap());
       }
       return unit;
     } else
@@ -142,7 +175,7 @@ class PlayerLocalSourceImpl implements PlayerLocalSource {
   Future<Unit> saveSports(List<Sport> sports) async {
     if (playerDatabase.isOpen) {
       for (var i in sports) {
-        await playerDatabase.insert(PROGRAMS_TABLE, i.toMap(i));
+        await playerDatabase.insert(TRAININGS_TABLE, i.toMap());
       }
       return unit;
     } else
@@ -152,20 +185,10 @@ class PlayerLocalSourceImpl implements PlayerLocalSource {
   @override
   Future<PlayerModel> getPlayerInfo() async {
     PlayerModel player;
-    List<Map<String, dynamic>> temp = await playerDatabase.query(PLAYER_TABLE);
+    List<Map<String, dynamic>> temp =
+        await playerDatabase.query(PLAYER_STATS_TABLE);
     if (temp.isNotEmpty) {
-
-      player = PlayerModel(
-        fullName: temp[0]['fullName'],
-        phoneNum: temp[0]['phoneNum'],
-        genderMale: temp[0]['genderMale'],
-        weight: temp[0]['weight'],
-        height: temp[0]['height'],
-        subscribeDate: temp[0]['subscribeDate'],
-        isSubscribed: temp[0]['isSubscribed'],
-        isTakenContainer: temp[0]['isTakenContainer'],
-        subscribeEndDate: temp[0]['subscribeEndDate'],
-      );
+      player = PlayerModel.fromJson(temp[0]);
       return player;
     } else
       throw DataBaseException();
@@ -174,8 +197,7 @@ class PlayerLocalSourceImpl implements PlayerLocalSource {
   @override
   Future<Unit> savePlayerInfo(PlayerModel player) async {
     if (playerDatabase.isOpen) {
-      await playerDatabase.insert(PROGRAMS_TABLE, player.toMap(player));
-
+      await playerDatabase.insert(TRAININGS_TABLE, player.toMap());
       return unit;
     } else
       throw DataBaseException();

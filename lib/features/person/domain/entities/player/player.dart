@@ -1,7 +1,7 @@
 import 'package:platinum/features/person/domain/entities/person/person.dart';
 
 class Player extends Person {
-  double weight, height;
+  double weight, height, balance;
   String subscribeDate, subscribeEndDate;
   bool isTakenContainer, isSubscribed;
 
@@ -10,6 +10,7 @@ class Player extends Person {
     required String fullName,
     required String phoneNum,
     required bool genderMale,
+    required this.balance,
     required this.weight,
     required this.height,
     required this.subscribeDate,

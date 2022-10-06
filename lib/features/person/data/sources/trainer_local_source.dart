@@ -21,12 +21,7 @@ class TrainerLocalSourceImpl extends TrainerLocalSource {
     if (temp.isNotEmpty) {
       for (var i in temp) {
         localTrainers.add(
-          TrainerModel(
-            id: i['id'],
-            fullName: i['fullName'],
-            phoneNum: i['phoneNum'],
-            genderMale: i['genderMale'],
-          ),
+          TrainerModel.fromJson(i),
         );
       }
       return localTrainers;
@@ -38,7 +33,7 @@ class TrainerLocalSourceImpl extends TrainerLocalSource {
   Future<Unit> saveTrainers(List<TrainerModel> trainers) async {
     if (database.isOpen) {
       for (var i in trainers) {
-        await database.insert(TRAINERS_TABLE, i.toMap(i));
+        await database.insert(TRAINERS_TABLE, i.toMap());
       }
       return unit;
     } else

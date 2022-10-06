@@ -3,11 +3,10 @@ import 'package:platinum/core/errors/failures.dart';
 import 'package:platinum/core/samples/training_program.dart';
 import 'package:platinum/features/person/domain/repository/repository.dart';
 
-class GetAllProgramsUsecase {
+class GetAllTrainingsUsecase {
   final PlayerRepository repository;
-  const GetAllProgramsUsecase(this.repository);
-
-  Future<Either<Failure, TrainingProgram>> call() async {
-    return await repository.getCurrentProgram();
+  GetAllTrainingsUsecase(this.repository);
+  Future<Either<Failure, List<Training>>> call() async {
+    return await repository.getAllTrainings();
   }
 }

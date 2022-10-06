@@ -6,10 +6,6 @@ import 'package:platinum/features/person/presentation/widgets/status_screen/nutr
 class CalenderScreen extends StatelessWidget {
   const CalenderScreen({Key? key}) : super(key: key);
 
-  ///
-  ///TODO: define getter for training history and lay them in bottom ListView...
-  ///
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

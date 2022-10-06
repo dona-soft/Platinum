@@ -13,11 +13,20 @@ class Offer extends Equatable {
     required this.percent,
   });
 
-  Map<String, dynamic> toMap(Offer offer) {
+  factory Offer.fromJson(Map<String, dynamic> json) {
+    return Offer(
+      id: json['id'],
+      name: json['name'],
+      endDate: json['endDate'],
+      percent: json['percent'],
+    );
+  }
+
+  Map<String, dynamic> toMap() {
     return {
-      'name': offer.name,
-      'percent': offer.percent,
-      'endDate': offer.endDate,
+      'name': name,
+      'percent': percent,
+      'endDate': endDate,
     };
   }
 

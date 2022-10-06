@@ -12,7 +12,7 @@ class _CounterDialogState extends State<CounterDialog>
   late AnimationController controller;
   late Animation animation;
 
-  bool isTImerStarted = false, istrainFinished = false;
+  bool isTImerStarted = false, istrainFinished = false, resetTimer = false;
 
   @override
   void initState() {
@@ -35,15 +35,17 @@ class _CounterDialogState extends State<CounterDialog>
     if (controller.isCompleted) {
       istrainFinished = false;
       controller.reset();
-      controller.forward();
     } else if (isTImerStarted) {
       controller.stop();
+      setState(() {
+        isTImerStarted = !isTImerStarted;
+      });
     } else {
       controller.forward();
+      setState(() {
+        isTImerStarted = !isTImerStarted;
+      });
     }
-    setState(() {
-      isTImerStarted = !isTImerStarted;
-    });
   }
 
   @override

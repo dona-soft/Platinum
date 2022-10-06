@@ -16,13 +16,22 @@ class Sport extends Equatable {
     this.isActive,
   });
 
-  Map<String, dynamic> toMap(Sport sport) {
+  factory Sport.fromJson(Map<String, dynamic> json) {
+    return Sport(
+        id: json['id'],
+        dailyPrice: json['dailyPrice'],
+        daysInWeek: json['daysInWeek'],
+        name: json['name'],
+        price: json['price']);
+  }
+
+  Map<String, dynamic> toMap() {
     return {
-      'name': sport.name,
-      'price': sport.price,
-      'daysInWeek': sport.daysInWeek,
-      'dailyPrice': sport.dailyPrice,
-      'isActive': sport.isActive,
+      'name': name,
+      'price': price,
+      'daysInWeek': daysInWeek,
+      'dailyPrice': dailyPrice,
+      'isActive': isActive,
     };
   }
 

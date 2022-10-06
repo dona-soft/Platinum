@@ -11,12 +11,14 @@ class PlayerModel extends Player {
     required bool isSubscribed,
     required bool isTakenContainer,
     required String subscribeEndDate,
+    required double balance,
   }) : super(
           fullName: fullName,
           phoneNum: phoneNum,
           genderMale: genderMale,
           weight: weight,
           height: height,
+          balance: balance,
           subscribeDate: subscribeDate,
           isSubscribed: isSubscribed,
           isTakenContainer: isTakenContainer,
@@ -30,24 +32,26 @@ class PlayerModel extends Player {
       genderMale: json['genderMale'],
       weight: json['weight'],
       height: json['height'],
+      balance: json['balance'],
       subscribeDate: json['subscribeDate'],
       isSubscribed: json['isSubscribed'],
       isTakenContainer: json['isTakenContainer'],
       subscribeEndDate: json['subscribeEndDate'],
     );
   }
-  
-  Map<String, dynamic> toMap(PlayerModel playerModel) {
+
+  Map<String, dynamic> toMap() {
     return {
-      'fullName': playerModel.fullName,
-      'phoneNum': playerModel.phoneNum,
-      'genderMale': playerModel.genderMale,
-      'weight': playerModel.weight,
-      'height': playerModel.height,
-      'subscribeDate': playerModel.subscribeDate,
-      'isSubscribed': playerModel.isSubscribed,
-      'isTakenContainer': playerModel.isTakenContainer,
-      'subscribeEndDate': playerModel.subscribeEndDate,
+      'fullName': fullName,
+      'phoneNum': phoneNum,
+      'genderMale': genderMale,
+      'weight': weight,
+      'height': height,
+      'balance': balance,
+      'subscribeDate': subscribeDate,
+      'isSubscribed': isSubscribed,
+      'isTakenContainer': isTakenContainer,
+      'subscribeEndDate': subscribeEndDate,
     };
   }
 }

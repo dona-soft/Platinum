@@ -8,7 +8,8 @@ import 'package:platinum/features/person/domain/entities/player/aux/player_payme
 import 'package:platinum/features/person/domain/entities/trainer/trainer.dart';
 
 abstract class PlayerRepository {
-  Future<Either<Failure, List<TrainingProgram>>> getAllPrograms();
+  Future<Either<Failure, List<Training>>> getAllTrainings();
+  Future<Either<Failure, TrainingProgram>> getCurrentProgram();
   Future<Either<Failure, List<Sport>>> getAllSports();
   Future<Either<Failure, List<PlayerPayment>>> getAllPayments();
   Future<Either<Failure, PlayerModel>> getPlayerInfo();

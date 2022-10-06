@@ -11,7 +11,23 @@ class DailyPlayerReport extends Equatable {
     required this.logoutTime,
   });
 
+  factory DailyPlayerReport.fromJson(Map<String, dynamic> json) {
+    return DailyPlayerReport(
+      date: json['date'],
+      loginTime: json['loginTime'],
+      logoutTime: json['logoutTime'],
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'date': date,
+      'loginTime': loginTime,
+      'logoutTime': logoutTime,
+    };
+  }
+
   @override
-  // TODO: implement props
   List<Object?> get props => throw UnimplementedError();
 }

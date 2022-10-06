@@ -1,14 +1,12 @@
 import 'package:equatable/equatable.dart';
 
 class PlayerTraining extends Equatable {
-  DateTime lastCheck, rollDate;
-  int price;
-  double priceAfterOffer;
-  int monthCount;
+  final DateTime lastCheck, rollDate;
+  final int price;
+  final double priceAfterOffer;
 
-  PlayerTraining({
+  const PlayerTraining({
     required this.lastCheck,
-    required this.monthCount,
     required this.price,
     required this.priceAfterOffer,
     required this.rollDate,
@@ -16,5 +14,5 @@ class PlayerTraining extends Equatable {
 
   @override
   // TODO: implement props
-  List<Object?> get props => [rollDate, price, monthCount];
+  List<Object?> get props => [rollDate, price];
 }

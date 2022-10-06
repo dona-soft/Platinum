@@ -20,5 +20,5 @@ class EmptyCacheFailure extends Failure {
 class DataBaseFailure extends Failure {
   @override
   // TODO: implement props
-  List<Object?> get props => throw UnimplementedError();
+  List<Object?> get props => [];
 }

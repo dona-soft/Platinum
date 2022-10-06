@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "235492826111",
+    "project_id": "platinum-gym-63fcc",
+    "storage_bucket": "platinum-gym-63fcc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:235492826111:android:4a2573ada853e8cbe165ca",
+        "android_client_info": {
+          "package_name": "com.donasoft.platinum"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "235492826111-pro6pgp7fi5veu8c8gi9jg1d5l3q36n0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCQ9tqEH_RY0Uay2uNP32UNrhwuJzteXHE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "235492826111-pro6pgp7fi5veu8c8gi9jg1d5l3q36n0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

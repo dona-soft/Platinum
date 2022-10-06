@@ -12,15 +12,23 @@ class PlayerPayment extends Equatable {
     required this.payDate,
   });
 
-  Map<String, dynamic> toMap(PlayerPayment payment) {
+  factory PlayerPayment.fromJson(Map<String, dynamic> json) {
+    return PlayerPayment(
+      paymentValue: json['paymentValue'],
+      description: json['description'],
+      payDate: json['payDate'],
+    );
+  }
+
+  Map<String, dynamic> toMap() {
     return {
-      'paymentValue': payment.paymentValue,
-      'payDate': payment.payDate,
-      'description': payment.description,
+      'paymentValue': paymentValue,
+      'payDate':payDate,
+      'description': description,
     };
   }
 
   @override
   // TODO: implement props
-  List<Object?> get props => [];
+  List<Object?> get props => [id, paymentValue, payDate];
 }

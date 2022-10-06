@@ -3,9 +3,10 @@ import 'package:platinum/core/constants/strings.dart';
 import 'package:platinum/core/themes/main_theme.dart';
 
 class WeekTrainingDays extends StatelessWidget {
-  const WeekTrainingDays({Key? key}) : super(key: key);
+  const WeekTrainingDays({Key? key, required this.today}) : super(key: key);
 
   final List<String> weekdays = week;
+  final int today;
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +46,7 @@ class WeekTrainingDays extends StatelessWidget {
                     width: 30,
                     height: 30,
                     decoration: BoxDecoration(
-                      color: i % 2 == 1
+                      color: i == shiftDays()
                           ? LightTheme.primaryColorLight
                           : Colors.grey.shade300,
                       borderRadius: BorderRadius.circular(5),
@@ -62,7 +63,7 @@ class WeekTrainingDays extends StatelessWidget {
                         week[i],
                         style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            color: i % 2 == 1
+                            color: i == shiftDays()
                                 ? Colors.white
                                 : Colors.grey.shade600),
                       ),
@@ -75,4 +76,16 @@ class WeekTrainingDays extends StatelessWidget {
       ),
     );
   }
+
+  int shiftDays() {
+    return (today + 1) % 7;
+  }
 }
+//  day of week(Str):         mo  tu  we  th  fr  sa  su
+//  day of week(Int):         01  02  03  04  05  06  07
+//  day + 1:                  02  03  04  05  06  07  08
+//  day we want(Str): sa  su  mo  tu  we  th  fr  sa  su
+//  day we want(Int): 00  01  02  03  04  05  06  00  01
+//  1 <= day(Int)     <= 7
+//  0 <= day(Int) - 1 <= 6
+//  2 <= day(Int) + 1 <= 9
