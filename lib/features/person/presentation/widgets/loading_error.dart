@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:platinum/core/constants/strings.dart';
 
 typedef CallBack = void Function();
 
@@ -16,28 +17,42 @@ class LoadingErrorWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Icon(
-          Icons.error_outline_rounded,
-          size: 50,
-          color: Colors.red,
-        ),
-        SizedBox(height: 10),
+        // Icon(
+        //   Icons.warning_amber_rounded,
+        //   size: 50,
+        //   color: Colors.orange,
+        // ),
         Text(
-          message,
-          style: TextStyle(
-            fontSize: 20,
-            color: Colors.grey.shade700,
-          ),
+          WTF,
+          style: TextStyle(fontSize: 30, color: Colors.grey.shade700),
         ),
-        SizedBox(height: 10),
-        IconButton(
-          onPressed: reload,
-          icon: Icon(
-            Icons.replay_circle_filled_outlined,
-            size: 30,
-            color: Colors.blue,
-          ),
+        SizedBox(height: 5),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          textDirection: TextDirection.rtl,
+          children: [
+            Text(
+              message,
+              style: TextStyle(
+                fontSize: 20,
+                color: Colors.grey.shade700,
+              ),
+            ),
+            Material(
+              color: Colors.transparent,
+              child: IconButton(
+                splashRadius: 20,
+                onPressed: reload,
+                icon: Icon(
+                  Icons.cached_rounded,
+                  size: 20,
+                  color: Colors.blue,
+                ),
+              ),
+            ),
+          ],
         ),
       ],
     );

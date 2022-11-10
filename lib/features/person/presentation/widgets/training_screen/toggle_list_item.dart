@@ -41,15 +41,14 @@ class _ToggleListState extends State<ToggleList> {
               borderRadius: BorderRadius.circular(25),
             ),
             onTap: () {
+              widget.onPressed;
               setState(() {
                 activeItem = index;
               });
-
-              widget.onPressed;
             },
             child: Container(
               alignment: Alignment.center,
-              width: MediaQuery.of(context).size.width * 0.25,
+              padding: EdgeInsets.symmetric(horizontal: 10),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(25),
               ),

@@ -23,6 +23,7 @@ class SettingsItem extends StatelessWidget {
           borderRadius: BorderRadius.circular(15),
           onTap: onPressed,
           child: Row(
+            textDirection: TextDirection.rtl,
             children: [
               Expanded(
                 flex: 1,
@@ -38,7 +39,7 @@ class SettingsItem extends StatelessWidget {
                   margin: EdgeInsets.all(15),
                   alignment: AlignmentDirectional.centerEnd,
                   child: Icon(
-                    Icons.arrow_forward_ios_rounded,
+                    Icons.arrow_back_ios,
                     color: Colors.grey,
                   ),
                 ),

@@ -1,19 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:platinum/core/samples/offer.dart';
+import 'package:intl/intl.dart';
 
 class BottomListItem extends StatelessWidget {
   const BottomListItem({
     Key? key,
     required this.icon,
-    required this.title,
-    this.subTitle,
+    required this.offer,
     required this.onPressed,
   }) : super(key: key);
   final Widget icon;
-  final String title;
-  final String? subTitle;
+  final Offer offer;
 
   final VoidCallback onPressed;
   final radius = 10.0;
+
+  String dateFormatter(DateTime dateTime) {
+    DateFormat dateFormat = DateFormat('yyyy-MM-dd');
+    return dateFormat.format(dateTime);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,19 +56,21 @@ class BottomListItem extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          title,
+                          offer.fullPay == 0
+                              ? '%${offer.percent} حسم'
+                              : '${offer.name}',
                           style: const TextStyle(
                             color: Colors.blueGrey,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        if (subTitle != null)
-                          Text(
-                            subTitle as String,
-                            style: const TextStyle(
-                              color: Colors.blueGrey,
-                            ),
+                        SizedBox(height: 5),
+                        Text(
+                          dateFormatter(offer.endDate) + ' :تاريخ الانتهاء',
+                          style: const TextStyle(
+                            color: Colors.blueGrey,
                           ),
+                        ),
                       ],
                     ),
                   ],

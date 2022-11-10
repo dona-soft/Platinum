@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:platinum/core/connection/network_info.dart';
-import 'package:platinum/core/errors/failures.dart';
+import 'package:platinum/core/constants/strings.dart';
+import 'package:platinum/core/samples/payment.dart';
 import 'package:platinum/core/themes/main_theme.dart';
-import 'package:platinum/features/person/domain/entities/player/aux/player_payment.dart';
 import 'package:platinum/features/person/domain/usecases/get_all_payments.dart';
 import 'package:platinum/features/person/presentation/widgets/loading_error.dart';
 import 'package:platinum/features/person/presentation/widgets/payments_screen/payment_item.dart';
@@ -22,16 +22,16 @@ class PaymentScreen extends StatefulWidget {
 }
 
 class _PaymentScreenState extends State<PaymentScreen> {
-  late List<PlayerPayment>? listPlyPyt;
+  late List<Payment>? listPlyPyt;
 
-  String? errMessage;
+  String errMessage = '';
 
-  Future<bool> loadPayments() async {
+  Future<List<Payment>> loadPayments() async {
     final either = await widget.getAllPaymentsUsecase();
     either.fold(
       (fail) {
         //  Failure
-        _mapFailureToMessege(fail);
+        mapFailureToMessege(fail);
         throw Exception();
       },
       (list) {
@@ -39,7 +39,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
         listPlyPyt = list;
       },
     );
-    return true;
+    return listPlyPyt as List<Payment>;
   }
 
   @override
@@ -53,26 +53,24 @@ class _PaymentScreenState extends State<PaymentScreen> {
         ),
         body: RefreshIndicator(
           onRefresh: () async {
-            await Future.delayed(Duration(seconds: 3));
             setState(() {});
+            await Future.delayed(Duration(seconds: 3));
           },
-          child: FutureBuilder(
+          child: FutureBuilder<List<Payment>>(
             future: loadPayments(),
             builder: (context, asyncss) {
               if (asyncss.hasData)
                 return ListView.builder(
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: 15,
+                  itemCount: asyncss.data!.length,
                   itemBuilder: (context, index) {
-                    if (index < 10) {
-                      return PaymentItem();
-                    } else
-                      return Container();
+                    return PaymentItem(
+                      payment: asyncss.data![index],
+                    );
                   },
                 );
               else if (asyncss.hasError)
                 return LoadingErrorWidget(
-                    message: errMessage ?? 'Error',
+                    message: errMessage,
                     reload: () {
                       setState(() {});
                     });
@@ -81,20 +79,5 @@ class _PaymentScreenState extends State<PaymentScreen> {
             },
           ),
         ));
-  }
-
-  void _mapFailureToMessege(Failure fail) {
-    switch (fail.runtimeType) {
-      case ServerFailure:
-        errMessage = 'Server Failure!';
-        return;
-      case OfflineFailure:
-        errMessage = 'Offline Failure!';
-        return;
-      case EmptyCacheFailure:
-        errMessage = 'Empty Cache Failure!';
-        return;
-      default:
-    }
   }
 }

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:platinum/core/connection/network_info.dart';
-import 'package:platinum/core/errors/failures.dart';
+import 'package:platinum/core/constants/strings.dart';
+import 'package:platinum/core/samples/sport.dart';
 import 'package:platinum/core/samples/training_program.dart';
 import 'package:platinum/core/themes/main_theme.dart';
 import 'package:platinum/features/person/domain/usecases/get_all_programs.dart';
+import 'package:platinum/features/person/domain/usecases/get_all_sports.dart';
 import 'package:platinum/features/person/presentation/widgets/loading_error.dart';
+import 'package:platinum/features/person/presentation/widgets/no_data_banner.dart';
 import 'package:platinum/features/person/presentation/widgets/training_screen/counter_dialog.dart';
 import 'package:platinum/features/person/presentation/widgets/training_screen/training_card.dart';
 import 'package:platinum/features/person/presentation/widgets/training_screen/toggle_list_item.dart';
@@ -13,12 +16,14 @@ class TrainingScreen extends StatefulWidget {
   const TrainingScreen({
     Key? key,
     required this.programsUsecase,
+    required this.sportsUsecase,
     required this.networkInfo,
   }) : super(key: key);
 
   // final List<int> trainingProgram;
 
   final GetAllProgramsUsecase programsUsecase;
+  final GetAllSportsUsecase sportsUsecase;
   final NetworkInfo networkInfo;
 
   @override
@@ -26,9 +31,38 @@ class TrainingScreen extends StatefulWidget {
 }
 
 class _TrainingScreenState extends State<TrainingScreen> {
-  String? message;
+  String? sportsErrMessage, triningErrMessage;
+  List<Sport> listOfSport = [];
+  List<TrainingProgram>? trainingProgram;
 
-  TrainingProgram? list;
+  Future<List<Sport>> loadSports() async {
+    final either = await widget.sportsUsecase();
+    either.fold((fail) {
+      // failure
+      sportsErrMessage = mapFailureToMessege(fail);
+      throw Exception();
+    }, (list) {
+      // success
+      listOfSport = list;
+    });
+    return listOfSport;
+  }
+
+  Future<TrainingProgram> loadTrainings() async {
+    final either = await widget.programsUsecase();
+    either.fold(
+      (l) {
+        //  Failure
+        triningErrMessage = mapFailureToMessege(l);
+        throw Exception();
+      },
+      (r) {
+        //  Success
+        trainingProgram = r;
+      },
+    );
+    return trainingProgram!.first;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,13 +83,25 @@ class _TrainingScreenState extends State<TrainingScreen> {
             children: [
               Container(
                 height: 70,
-                child: ToggleList(
-                  children: [for (int i = 0; i < 10; i++) 'sport $i'],
-                  onPressed: () {},
-                  activeColor: Colors.blueGrey,
-                  inactiveColor: Colors.grey.shade300,
-                  isHorizontal: true,
-                ),
+                child: FutureBuilder<List<Sport>>(
+                    future: loadSports(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        return ToggleList(
+                          children: [
+                            for (var i in snapshot.data as List<Sport>) i.name,
+                          ],
+                          onPressed: () {},
+                          activeColor: Colors.blueGrey,
+                          inactiveColor: Colors.grey.shade300,
+                          isHorizontal: true,
+                        );
+                      } else if (snapshot.hasError) {
+                        return Text('حدث خطأفي تحميل الرياضات');
+                      } else {
+                        return Container();
+                      }
+                    }),
               ),
               Expanded(
                 child: Container(
@@ -69,11 +115,12 @@ class _TrainingScreenState extends State<TrainingScreen> {
                   ),
                   child: RefreshIndicator(
                     onRefresh: () async => setState(() {}),
-                    child: FutureBuilder(
+                    child: FutureBuilder<TrainingProgram>(
                       future: loadTrainings(),
                       builder: (context, asyncss) {
-                        if (asyncss.hasData)
+                        if (asyncss.hasData) {
                           return ListView.separated(
+                            itemCount: asyncss.data!.listOfTrains.length,
                             physics: BouncingScrollPhysics(),
                             padding: const EdgeInsets.symmetric(
                                 vertical: 25, horizontal: 25),
@@ -89,11 +136,11 @@ class _TrainingScreenState extends State<TrainingScreen> {
                                       color: Colors.white),
                                 ),
                                 onPressed: () {
-                                  showDialog(
-                                      context: context,
-                                      builder: (context) {
-                                        return CounterDialog();
-                                      });
+                                  // showDialog(
+                                  //     context: context,
+                                  //     builder: (context) {
+                                  //       return CounterDialog();
+                                  //     });
                                 },
                               );
                             },
@@ -102,11 +149,10 @@ class _TrainingScreenState extends State<TrainingScreen> {
                                 height: 15,
                               );
                             },
-                            itemCount: 5,
                           );
-                        else if (asyncss.hasError)
+                        } else if (asyncss.hasError)
                           return LoadingErrorWidget(
-                            message: message ?? 'Error',
+                            message: sportsErrMessage ?? 'Error',
                             reload: () => setState(() {}),
                           );
                         else
@@ -121,36 +167,5 @@ class _TrainingScreenState extends State<TrainingScreen> {
         ),
       ),
     );
-  }
-
-  Future<bool> loadTrainings() async {
-    final either = await widget.programsUsecase();
-    either.fold(
-      (l) {
-        //  Failure
-        _mapFailureToMessege(l);
-        throw Exception();
-      },
-      (r) {
-        //  Success
-        list = r;
-      },
-    );
-    return true;
-  }
-
-  void _mapFailureToMessege(Failure fail) {
-    switch (fail.runtimeType) {
-      case ServerFailure:
-        message = 'Server Failure!';
-        return;
-      case OfflineFailure:
-        message = 'Offline Failure!';
-        return;
-      case EmptyCacheFailure:
-        message = 'Empty Cache Failure!';
-        return;
-      default:
-    }
   }
 }

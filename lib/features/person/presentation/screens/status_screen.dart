@@ -1,10 +1,54 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:platinum/core/constants/strings.dart';
+import 'package:platinum/core/errors/exceptions.dart';
+import 'package:platinum/core/samples/player_status.dart';
 import 'package:platinum/core/themes/main_theme.dart';
-import 'package:platinum/features/person/presentation/widgets/status_screen/nutrition_system_list.dart';
+import 'package:platinum/features/person/domain/usecases/get_player_metrics.dart';
+import 'package:platinum/features/person/presentation/widgets/loading_error.dart';
+import 'package:platinum/features/person/presentation/widgets/status_screen/body_part.dart';
+import 'package:intl/intl.dart';
 
-class CalenderScreen extends StatelessWidget {
-  const CalenderScreen({Key? key}) : super(key: key);
+class StatusScreen extends StatefulWidget {
+  const StatusScreen({
+    Key? key,
+    required this.statusUsecase,
+  }) : super(key: key);
+
+  final GetPlayerStatusUsecase statusUsecase;
+
+  @override
+  State<StatusScreen> createState() => _StatusScreenState();
+}
+
+class _StatusScreenState extends State<StatusScreen> {
+  final controller = PageController();
+
+  List<PlayerStatus> playerStatus = [];
+  late PlayerStatus currentStats;
+
+  final duration = const Duration(milliseconds: 500);
+
+  String dateFormatter(DateTime dateTime) {
+    DateFormat dateFormat = DateFormat('yyyy-MM-dd');
+    return dateFormat.format(dateTime);
+  }
+
+  Future<List<PlayerStatus>> loadStatus() async {
+    print(body_parts.length);
+    final either = await widget.statusUsecase();
+    either.fold(
+      (fail) {
+        throw GlobalException(message: mapFailureToMessege(fail));
+      },
+      (list) {
+        playerStatus = list;
+      },
+    );
+    currentStats = playerStatus.first;
+    print('currentStatus date = ${currentStats.CheckDate}');
+    return playerStatus;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,48 +58,162 @@ class CalenderScreen extends StatelessWidget {
         backgroundColor: LightTheme.primaryColorLight,
         foregroundColor: Colors.white,
       ),
-      body: ListView(
-        padding: EdgeInsets.all(15),
-        children: [
-          Center(
-            child: Image.asset('icons/group_60.png'),
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          Container(
-            padding: EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade300,
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                for (int i = 1; i < 6; i++)
-                  ListTile(
-                    leading: Text(
-                      '$i',
-                      style:
-                          TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+      body: FutureBuilder<List<PlayerStatus>>(
+          future: loadStatus(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData)
+              return Column(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        IconButton(
+                          onPressed: () async {
+                            await controller.previousPage(
+                                duration: duration, curve: Curves.linear);
+                          },
+                          icon: Icon(
+                            Icons.arrow_back_ios,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        Text(
+                          dateFormatter(currentStats.CheckDate),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () async {
+                            await controller.nextPage(
+                                duration: duration, curve: Curves.linear);
+                          },
+                          icon: Icon(
+                            Icons.arrow_forward_ios,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
                     ),
-                    title: Text(
-                      bodyParts[i],
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Text(
-                        'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'),
                   ),
-              ],
-            ),
-          ),
-          SizedBox(
-            height: 15,
-          ),
-          NutritionList(),
-        ],
-      ),
+                  Expanded(
+                      flex: 1,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text('kg الوزن: ${currentStats.Weight}'),
+                          SizedBox(width: 15),
+                          Text('cm الطول: ${currentStats.Height}'),
+                        ],
+                      )),
+                  Expanded(
+                    flex: 15,
+                    child: PageView(
+                      controller: controller,
+                      onPageChanged: (index) {
+                        currentStats = playerStatus[index];
+                      },
+                      dragStartBehavior: DragStartBehavior.down,
+                      children: [
+                        for (var i in playerStatus)
+                          ListView(
+                            padding: EdgeInsets.all(8),
+                            children: [
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  BodyPart(
+                                      image: Image.asset(
+                                        body_parts[0],
+                                        width: 150,
+                                      ),
+                                      title: 'الرقبة',
+                                      status: '${currentStats.Neck} cm'),
+                                  BodyPart(
+                                      image: Image.asset(
+                                        body_parts[0],
+                                        width: 150,
+                                      ),
+                                      title: 'أكتاف',
+                                      status: '${currentStats.Shoulders} cm'),
+                                  BodyPart(
+                                      image: Image.asset(
+                                        body_parts[1],
+                                        width: 150,
+                                      ),
+                                      title: 'صدر',
+                                      status: '${currentStats.Chest} cm'),
+                                  BodyPart(
+                                    image: Image.asset(
+                                      body_parts[2],
+                                      width: 150,
+                                    ),
+                                    title: 'الذراعين',
+                                    status:
+                                        'cm عضد ايسر ${currentStats.L_Arm}\n'
+                                        'cm عضد ايمن ${currentStats.R_Arm}\n'
+                                        'cm ساعد ايسر ${currentStats.L_Humerus}\n'
+                                        'cm ساعد ايمن ${currentStats.R_Humerus}',
+                                  ),
+                                  BodyPart(
+                                      image: Image.asset(
+                                        body_parts[3],
+                                        width: 150,
+                                      ),
+                                      title: 'الخصر',
+                                      status: '${currentStats.Waist} cm'),
+                                  BodyPart(
+                                      image: Image.asset(
+                                        body_parts[4],
+                                        width: 150,
+                                      ),
+                                      title: 'المعدة',
+                                      status: '${currentStats.Hips} cm'),
+                                  BodyPart(
+                                    image: Image.asset(
+                                      body_parts[5],
+                                      width: 150,
+                                    ),
+                                    title: 'الفخذين',
+                                    status:
+                                        'cm فخذ ايسر ${currentStats.L_Thigh}\n'
+                                        'cm فخذ ايمن ${currentStats.R_Thigh}',
+                                  ),
+                                  BodyPart(
+                                    image: Image.asset(
+                                      body_parts[6],
+                                      width: 150,
+                                    ),
+                                    title: 'الساقين',
+                                    status:
+                                        'cm ساق يسرى: ${currentStats.L_Leg}\n'
+                                        'cm ساق يمنى: ${currentStats.R_Leg}'
+                                        '',
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                height: 15,
+                              ),
+                            ],
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            else if (snapshot.hasError) {
+              return LoadingErrorWidget(
+                  message: (snapshot.error as GlobalException).message,
+                  reload: () => setState(() {}));
+            } else {
+              return Center(child: CircularProgressIndicator());
+            }
+          }),
     );
   }
 }

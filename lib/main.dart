@@ -1,24 +1,24 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:platinum/core/services/notifications.dart';
 import 'package:platinum/core/themes/main_theme.dart';
-import 'package:platinum/features/auth/login_screen.dart';
+import 'package:platinum/features/person/presentation/screens/about_screen.dart';
+import 'package:platinum/features/person/presentation/screens/login_screen.dart';
 import 'package:platinum/features/person/presentation/screens/home_screen.dart';
 import 'package:platinum/features/person/presentation/screens/loading_screen.dart';
 import 'package:platinum/features/person/presentation/screens/payments_screen.dart';
 import 'package:platinum/features/person/presentation/screens/profile_screen.dart';
+import 'package:platinum/features/person/presentation/screens/sports_and_trainers.dart';
 import 'package:platinum/features/person/presentation/screens/status_screen.dart';
+import 'package:platinum/features/person/presentation/screens/subsciptions_screen.dart';
 import 'package:platinum/features/person/presentation/screens/training_screen.dart';
 import 'injection_dependency.dart' as di;
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
 
-  print(
-      'DEBUG: Handling a background message: ${message.notification?.title} :: ${message.notification?.body}');
+  print(message.data);
 }
 
 void main() async {
@@ -36,13 +36,13 @@ void main() async {
     sound: true,
   );
 
-  // FirebaseMessaging.instance.getToken().then((value) => print(value));
-
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -51,28 +51,28 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.orange,
         primaryColor: LightTheme.primaryColorLight,
       ),
-      initialRoute: '/login',
+      initialRoute: '/splash',
       routes: {
-        '/loading': (_) => new LoadingScreen(),
-        '/login': (_) => LoginScreen(
-              networkInfo: di.sl(),
-              
-            ),
+        '/splash': (_) => new LoadingScreen(sharedPreferences: di.sl()),
+        '/login': (_) =>
+            LoginScreen(networkInfo: di.sl(), sharedPreferences: di.sl()),
         '/home': (_) => HomeScreen(
-              offersUsecase: di.sl(),
-              trainersUsecase: di.sl(),
-              networkInfo: di.sl(),
-            ),
+            offersUsecase: di.sl(),
+            playerInfoUsecase: di.sl(),
+            networkInfo: di.sl()),
         '/home/training': (_) => TrainingScreen(
+              sportsUsecase: di.sl(),
               programsUsecase: di.sl(),
               networkInfo: di.sl(),
             ),
-        '/home/payment': (_) => PaymentScreen(
-              getAllPaymentsUsecase: di.sl(),
-              networkInfo: di.sl(),
-            ),
-        '/home/calender': (_) => CalenderScreen(),
-        '/home/profile': (_) => ProfileScreen(),
+        '/home/sport': (context) => SportsAndTrainersScr(
+            sportsUsecase: di.sl(), trainersUsecase: di.sl()),
+        '/home/calender': (_) => StatusScreen(statusUsecase: di.sl()),
+        '/home/profile': (_) => ProfileScreen(playerInfoUsecase: di.sl(),sharedPreferences: di.sl()),
+        '/home/profile/subs': (context) => SubscriptionsScreen(subsUsecase: di.sl()),
+        '/home/profile/about': (context) => AboutScreen(),
+        '/home/profile/payment': (_) =>
+            PaymentScreen(getAllPaymentsUsecase: di.sl(), networkInfo: di.sl()),
       },
       title: 'Platinum',
     );

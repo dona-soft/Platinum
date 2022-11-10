@@ -20,6 +20,7 @@ class TrainerLocalSourceImpl extends TrainerLocalSource {
     List<Map<String, dynamic>> temp = await database.query(TRAINERS_TABLE);
     if (temp.isNotEmpty) {
       for (var i in temp) {
+        print('Debug: GetAllTrainers => Trainer Model: $i');
         localTrainers.add(
           TrainerModel.fromJson(i),
         );
@@ -32,7 +33,11 @@ class TrainerLocalSourceImpl extends TrainerLocalSource {
   @override
   Future<Unit> saveTrainers(List<TrainerModel> trainers) async {
     if (database.isOpen) {
+      await database.delete(
+        TRAINERS_TABLE,
+      );
       for (var i in trainers) {
+        print('Debug: saveTrainers => TrainerModel: $i');
         await database.insert(TRAINERS_TABLE, i.toMap());
       }
       return unit;

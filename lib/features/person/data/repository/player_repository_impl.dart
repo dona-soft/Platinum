@@ -1,10 +1,11 @@
 import 'package:platinum/core/connection/network_info.dart';
 import 'package:platinum/core/errors/exceptions.dart';
+import 'package:platinum/core/samples/payment.dart';
+import 'package:platinum/core/samples/player_status.dart';
+import 'package:platinum/core/samples/player_training.dart';
 import 'package:platinum/features/person/data/models/player_model.dart';
 import 'package:platinum/features/person/data/sources/player_local_source.dart';
 import 'package:platinum/features/person/data/sources/player_remote_source.dart';
-import 'package:platinum/features/person/domain/entities/player/aux/player_payment.dart';
-import 'package:platinum/features/person/domain/entities/player/player.dart';
 import 'package:platinum/core/samples/training_program.dart';
 import 'package:platinum/core/samples/sport.dart';
 import 'package:platinum/core/samples/offer.dart';
@@ -24,13 +25,28 @@ class PlayerRepositoryImpl implements PlayerRepository {
   });
 
   @override
-  Future<Either<Failure, TrainingProgram>> getCurrentProgram() {
-    // TODO: implement getCurrentProgram
-    throw UnimplementedError();
+  Future<Either<Failure, List<TrainingProgram>>> getCurrentProgram() async {
+    if (await networkInfo.isConnected) {
+      try {
+        final remoteRes = await remoteSource.getCurrentProgram();
+        await localSource.saveCurrentProgram(remoteRes);
+        return Right(remoteRes);
+      } on ServerException {
+        return Left(ServerFailure());
+      }
+    } else {
+      try {
+        final localRes = await localSource.getCurrentProgram();
+        return Right(localRes);
+      } on EmptyCacheException {
+        return Left(EmptyCacheFailure());
+      }
+    }
   }
 
   @override
   Future<Either<Failure, List<Training>>> getAllTrainings() async {
+    // return Left(OfflineFailure());
     if (await networkInfo.isConnected) {
       try {
         final remoteResult = await remoteSource.getAllTrainings();
@@ -90,7 +106,7 @@ class PlayerRepositoryImpl implements PlayerRepository {
   }
 
   @override
-  Future<Either<Failure, List<PlayerPayment>>> getAllPayments() async {
+  Future<Either<Failure, List<Payment>>> getAllPayments() async {
     if (await networkInfo.isConnected) {
       try {
         final remoteRes = await remoteSource.getAllPlayerPayments();
@@ -111,37 +127,62 @@ class PlayerRepositoryImpl implements PlayerRepository {
 
   @override
   Future<Either<Failure, PlayerModel>> getPlayerInfo() async {
-    try {
-      final localRes = await localSource.getPlayerInfo();
-      return Right(localRes);
-    } on EmptyCacheException {
-      return Left(EmptyCacheFailure());
-    }
-  }
-
-  @override
-  Future<Either<Failure, Unit>> savePlayerInfo(PlayerModel player) async {
     if (await networkInfo.isConnected) {
       try {
-        await remoteSource.sendPlayerInfo(player);
-        await localSource.savePlayerInfo(player);
-        return Right(unit);
+        final remoteRes = await remoteSource.getPlayerInfo();
+        await localSource.savePlayerInfo(remoteRes);
+        return Right(remoteRes);
       } on ServerException {
         return Left(ServerFailure());
       }
     } else {
       try {
-        await localSource.savePlayerInfo(player);
-        return Right(unit);
-      } on DataBaseException {
-        return Left(DataBaseFailure());
+        final localRes = await localSource.getPlayerInfo();
+        return Right(localRes);
+      } on EmptyCacheException {
+        return Left(EmptyCacheFailure());
       }
     }
   }
 
   @override
-  Future<Either<Failure, Unit>> updatePlayer(Player player) async {
-    // TODO: seems almost identical to savePlayerInfo???
-    throw UnimplementedError();
+  Future<Either<Failure, List<PlayerStatus>>> getPlayerMetrics() async {
+    if (await networkInfo.isConnected) {
+      try {
+        final remoteRes = await remoteSource.getPlayerMetrics();
+        await localSource.savePlayerMetrics(remoteRes);
+        return Right(remoteRes);
+      } on ServerException catch (e) {
+        return Left(ServerFailure());
+      }
+    } else {
+      try {
+        final localRes = await localSource.getPlayerMetrics();
+        return Right(localRes);
+      } on EmptyCacheException catch (e) {
+        return Left(EmptyCacheFailure());
+      }
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<PlayerTraining>>> getPlayerSubs() async {
+    if (await networkInfo.isConnected) {
+      try {
+        final remoteRes = await remoteSource.getPlayerSubs();
+        await localSource.savePlayerSubs(remoteRes);
+        return Right(remoteRes);
+      } on ServerException {
+        return Left(ServerFailure());
+      }
+    } else {
+      try {
+        final localRes = await localSource.getPlayerSubs();
+        return Right(localRes);
+      } on EmptyCacheException {
+        return Left(EmptyCacheFailure());
+      }
+    }
+    
   }
 }

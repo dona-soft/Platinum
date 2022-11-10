@@ -64,11 +64,6 @@ class _CounterDialogState extends State<CounterDialog>
         Column(
           children: [
             Container(
-              width: MediaQuery.of(context).size.width * 0.5,
-              height: MediaQuery.of(context).size.height * 0.3,
-              child: Image.asset('icons/training_1.jpg'),
-            ),
-            Container(
               margin: EdgeInsets.symmetric(horizontal: 15),
               child: Text(
                   'Lorem Ipsom and the big brown fox jumps over the lazy dog, such that the angular velocity is the first derivative of angle'),
@@ -82,8 +77,9 @@ class _CounterDialogState extends State<CounterDialog>
                     height: 70,
                     width: 70,
                     child: CircularProgressIndicator.adaptive(
-                      // valueColor: controller.drive(
-                      //     ColorTween(begin: Colors.amber, end: Colors.green)),
+                      valueColor: controller.drive(
+                        ColorTween(begin: Colors.amber, end: Colors.blue),
+                      ),
                       backgroundColor: Colors.grey.shade300,
                       value: 1.0 - animation.value,
                       semanticsValue: 'aasd',

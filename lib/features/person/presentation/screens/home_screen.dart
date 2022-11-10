@@ -1,30 +1,29 @@
-import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:platinum/core/connection/network_info.dart';
 import 'package:platinum/core/constants/strings.dart';
-import 'package:platinum/core/errors/failures.dart';
 import 'package:platinum/core/samples/offer.dart';
-import 'package:platinum/core/services/notifications.dart';
 import 'package:platinum/core/themes/main_theme.dart';
-import 'package:platinum/features/person/domain/entities/trainer/trainer.dart';
-import 'package:platinum/features/person/domain/usecases/get_all_trainers.dart';
+import 'package:platinum/features/person/domain/entities/player/player.dart';
 import 'package:platinum/features/person/domain/usecases/get_availabe_offers.dart';
+import 'package:platinum/features/person/domain/usecases/get_player_info.dart';
 import 'package:platinum/features/person/presentation/widgets/home_screen/bottom_list_item.dart';
 import 'package:platinum/features/person/presentation/widgets/home_screen/med_list_item.dart';
+import 'package:platinum/features/person/presentation/widgets/home_screen/player_balance.dart';
 import 'package:platinum/features/person/presentation/widgets/home_screen/week_days_row.dart';
-import 'package:http/http.dart' as http;
 import 'package:platinum/features/person/presentation/widgets/loading_error.dart';
+import 'package:platinum/features/person/presentation/widgets/no_data_banner.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeScreen({
     Key? key,
     required this.offersUsecase,
-    required this.trainersUsecase,
     required this.networkInfo,
+    required this.playerInfoUsecase,
   }) : super(key: key);
 
   final GetAvailableOffersUsecase offersUsecase;
-  final GetAllTrainersUsecase trainersUsecase;
+  final GetPlayerInfoUsecase playerInfoUsecase;
   final NetworkInfo networkInfo;
 
   @override
@@ -32,45 +31,49 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
- 
-
-  late List<Offer>? listOfOffers;
+  List<Offer> listOfOffers = [];
   String? offersErrorMessege;
 
   bool isLoading = true;
 
-  List<Trainer> listOfTrainers = [];
+  late Player player;
 
-  Future<List<Offer>?> loadOffers() async {
+  Future<List<Offer>> loadOffers() async {
     print('started loadOffers Method!!!');
     final eitherOffersOrFailure = await widget.offersUsecase();
 
-    final res = eitherOffersOrFailure.fold(
+    eitherOffersOrFailure.fold(
       (fail) {
         //fail
-        listOfOffers = null;
-        _mapFailureToMessege(fail);
+        offersErrorMessege = mapFailureToMessege(fail);
         throw Exception();
       },
       (list) {
         //success
         listOfOffers = list;
-        return 'offersErrorMessege';
       },
     );
 
     return listOfOffers;
   }
 
-  Future<void> loadTrainers() async {
-    final eitherTrainersOrFailure = await widget.trainersUsecase();
+  Future<Player> loadPlayerInfo() async {
+    final eitherTrainersOrFailure = await widget.playerInfoUsecase();
+
     eitherTrainersOrFailure.fold((l) {
       //fail
-      return null;
+      mapFailureToMessege(l);
+      throw Exception();
     }, (r) {
       //success
-      listOfTrainers = r;
+      player = r;
     });
+    return player;
+  }
+
+  @override
+  void initState() {
+    super.initState();
   }
 
   @override
@@ -129,10 +132,42 @@ class _HomeScreenState extends State<HomeScreen> {
                                   color: Colors.white,
                                   splashRadius: 25,
                                   onPressed: () async {
-                                    await callApi();
+                                    showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return AlertDialog(
+                                            title: Text(
+                                              'تسجيل الخروج؟',
+                                              textDirection: TextDirection.rtl,
+                                            ),
+                                            content: Text(
+                                              'هل انت متأكد من عملية تسجيل الخروج, قد تتعرض بياناتك للتلف او الضياع هل تريد الاستمرار؟',
+                                              textDirection: TextDirection.rtl,
+                                            ),
+                                            actions: [
+                                              OutlinedButton(
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                },
+                                                child: Text('تراجع'),
+                                              ),
+                                              ElevatedButton(
+                                                onPressed: () async {
+                                                  await FirebaseAuth.instance
+                                                      .signOut();
+
+                                                  Navigator
+                                                      .pushReplacementNamed(
+                                                          context, '/login');
+                                                },
+                                                child: Text('نعم'),
+                                              ),
+                                            ],
+                                          );
+                                        });
                                   },
                                   icon: Icon(
-                                    Icons.notifications_rounded,
+                                    Icons.logout,
                                   ),
                                 ),
                               ),
@@ -142,22 +177,28 @@ class _HomeScreenState extends State<HomeScreen> {
                         Expanded(
                           child: SizedBox(
                             width: MediaQuery.of(context).size.width * 0.9,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: const [
-                                Text(
-                                  r'$20000',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                Text(
-                                  'Month\'s payment',
-                                  style: TextStyle(color: Colors.white),
-                                ),
+                            child: Row(
+                              children: [
+                                FutureBuilder<Player>(
+                                    future: loadPlayerInfo(),
+                                    builder: (context, snapShot) {
+                                      if (snapShot.hasData)
+                                        return BalanceWidget(
+                                          balance:
+                                              snapShot.data!.balance.toString(),
+                                          subtitle: 'الرصيد الحالي',
+                                        );
+                                      else if (snapShot.hasError) {
+                                        return BalanceWidget(
+                                            balance: '0 ل.س',
+                                            subtitle:
+                                                "تأكد من الاتصال بالانترنت");
+                                      } else {
+                                        return BalanceWidget(
+                                            balance: '0 ل.س',
+                                            subtitle: 'الرصيد الحالي');
+                                      }
+                                    }),
                               ],
                             ),
                           ),
@@ -190,9 +231,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         MedListItem(
                           scrWidth: MediaQuery.of(context).size.width,
-                          onPressed: () => navigateTo(context, '/home/payment'),
+                          onPressed: () => navigateTo(context, '/home/sport'),
                           icon: const Icon(
-                            Icons.payments_outlined,
+                            Icons.content_paste_go_rounded,
                             color: Colors.green,
                             size: 30,
                           ),
@@ -257,65 +298,68 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: RefreshIndicator(
                               onRefresh: () async {
                                 if (await widget.networkInfo.isConnected) {
-                                  await Future.delayed(Duration(seconds: 3));
                                   setState(() {});
+                                  await Future.delayed(Duration(seconds: 3));
                                 } else {
                                   ScaffoldMessenger.of(context)
                                       .hideCurrentSnackBar();
                                   ScaffoldMessenger.of(context)
                                       .showSnackBar(SnackBar(
                                     content: Text(
-                                      'No Internet Connection!!',
+                                      '!لا يوجد اتصال بالانترنت',
                                       style: TextStyle(color: Colors.white),
                                     ),
                                     backgroundColor: Colors.red,
                                   ));
                                 }
                               },
-                              child: FutureBuilder(
+                              child: FutureBuilder<List<Offer>>(
                                 future: loadOffers(),
                                 builder: (context, asyncss) {
-                                  if (asyncss.hasData)
-                                    return Container(
-                                      child: ListView.builder(
-                                        physics: ClampingScrollPhysics(),
-                                        itemCount: 10,
-                                        itemBuilder: (context, index) {
-                                          if (index == 0) {
-                                            return Container(
-                                              alignment: Alignment.centerLeft,
-                                              padding: EdgeInsets.symmetric(
-                                                  vertical: 10, horizontal: 3),
-                                              child: Text(
-                                                offersBanner,
-                                                style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    color:
-                                                        Colors.grey.shade600),
-                                              ),
-                                            );
-                                          }
-                                          return BottomListItem(
-                                              icon: const Icon(
-                                                Icons.local_offer,
-                                                color: Colors.blue,
-                                              ),
-                                              title: '50% Discount',
-                                              subTitle:
-                                                  'for every two siblings',
-                                              onPressed: () {});
-                                        },
-                                      ),
+                                  if (asyncss.hasData) {
+                                    if (asyncss.data!.isEmpty) {
+                                      return NoDataBanner(
+                                          title: '...لا يوجد عروض حاليا');
+                                    }
+                                    return ListView.builder(
+                                      physics: ClampingScrollPhysics(),
+                                      itemCount: asyncss.data!.length - 1,
+                                      itemBuilder: (context, index) {
+                                        if (index == 0) {
+                                          return Container(
+                                            alignment: Alignment.centerRight,
+                                            padding: EdgeInsets.symmetric(
+                                                vertical: 10, horizontal: 3),
+                                            child: Text(
+                                              ':العروض المتوفرة',
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.grey.shade600),
+                                            ),
+                                          );
+                                        }
+
+                                        return BottomListItem(
+                                            icon: const Icon(
+                                              Icons.local_offer,
+                                              color: Colors.blue,
+                                            ),
+                                            offer: asyncss.data![index - 1],
+                                            onPressed: () {});
+                                      },
                                     );
-                                  else if (asyncss.hasError)
+                                  } else if (asyncss.hasError) {
                                     return LoadingErrorWidget(
-                                      message: offersErrorMessege ?? 'Error',
+                                      message: offersErrorMessege == null
+                                          ? '!حدث خطأ'
+                                          : offersErrorMessege as String,
                                       reload: () {
                                         setState(() {});
                                       },
                                     );
-                                  else
-                                    return CircularProgressIndicator();
+                                  } else
+                                    return Center(
+                                        child: CircularProgressIndicator());
                                 },
                               ),
                             ),
@@ -335,51 +379,5 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void navigateTo(BuildContext context, String destination) {
     Navigator.pushNamed(context, destination);
-  }
-
-  void _mapFailureToMessege(Failure fail) {
-    switch (fail.runtimeType) {
-      case ServerFailure:
-        offersErrorMessege = 'Server Failure!';
-        return;
-      case OfflineFailure:
-        offersErrorMessege = 'Offline Failure!';
-        return;
-      case EmptyCacheFailure:
-        offersErrorMessege = 'Empty Cache Failure!';
-        return;
-      default:
-    }
-  }
-
-  Future<void> callApi() async {
-    try {
-      final response = await http.post(
-        Uri.parse(HTTP_PLAYER_LOGIN),
-        body: jsonEncode({
-          'phone': '0934321512',
-          'password': '123456789',
-        }),
-        headers: {
-          'Accept': 'application/vnd.api+json',
-          'Content-Type': 'application/json',
-        },
-      );
-      print(response.body);
-      final token = jsonDecode(response.body)['data']['token'];
-      print(token);
-
-      final response2 = await http.get(
-        Uri.parse(HTTP_PLAYER_URL),
-        headers: {
-          'Accept': 'application/vnd.api+json',
-          'Content-Type': 'application/vnd.api+json',
-          'Authorization': 'Bearer $token',
-        },
-      );
-      print(response2.body);
-    } catch (e) {
-      print('DEBUG: $e');
-    }
   }
 }

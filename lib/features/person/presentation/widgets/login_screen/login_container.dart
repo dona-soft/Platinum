@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/widgets.dart';
 import 'package:platinum/core/themes/main_theme.dart';
 
 class LoginContainer extends StatelessWidget {
@@ -57,10 +54,11 @@ class LoginContainer extends StatelessWidget {
               SizedBox(
                 height: 50,
                 child: TextField(
+                  textAlign: TextAlign.center,
                   autofocus: false,
                   controller: phoneNumberCtrl,
                   decoration: const InputDecoration(
-                    labelText: 'Phone number:',
+                    labelText: ':رقم الهاتف',
                     hintText: '0987654321',
                     border: OutlineInputBorder(),
                   ),
@@ -70,11 +68,10 @@ class LoginContainer extends StatelessWidget {
               const SizedBox(
                 height: 15,
               ),
-              !isCodeSent
-                  ? Container()
-                  : SizedBox(
-                      height: 50,
+              isCodeSent
+                  ? Container(
                       child: TextField(
+                        textAlign: TextAlign.center,
                         autofocus: false,
                         controller: passwordCtrl,
                         keyboardType: TextInputType.number,
@@ -84,7 +81,8 @@ class LoginContainer extends StatelessWidget {
                         ),
                         textInputAction: TextInputAction.done,
                       ),
-                    ),
+                    )
+                  : Container(),
               const SizedBox(
                 height: 15,
               ),
@@ -96,11 +94,17 @@ class LoginContainer extends StatelessWidget {
                         MaterialStateProperty.all(LightTheme.primaryColorLight),
                   ),
                   onPressed: validateUser,
-                  child: const Text(
-                    'Login',
-                    style: TextStyle(color: Colors.white),
+                  child: Text(
+                    isCodeSent ? 'تأكيد الكود' : 'تسجيل الدخول',
+                    style: TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold),
                   ),
                 ),
+              ),
+              Text(
+                'الرجاء تفعيل البروكسي فقط عند تسجيل الدخول!',
+                textDirection: TextDirection.rtl,
+                style: TextStyle(color: Colors.grey),
               ),
             ],
           ),

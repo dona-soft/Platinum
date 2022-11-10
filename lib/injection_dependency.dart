@@ -16,6 +16,10 @@ import 'package:platinum/features/person/domain/usecases/get_all_sports.dart';
 import 'package:platinum/features/person/domain/usecases/get_all_trainers.dart';
 import 'package:http/http.dart' as http;
 import 'package:platinum/features/person/domain/usecases/get_availabe_offers.dart';
+import 'package:platinum/features/person/domain/usecases/get_player_info.dart';
+import 'package:platinum/features/person/domain/usecases/get_player_metrics.dart';
+import 'package:platinum/features/person/domain/usecases/get_player_subs.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
 final sl = GetIt.instance;
@@ -28,6 +32,9 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetAllSportsUsecase(sl()));
   sl.registerLazySingleton(() => GetAllTrainersUsecase(sl()));
   sl.registerLazySingleton(() => GetAvailableOffersUsecase(sl()));
+  sl.registerLazySingleton(() => GetPlayerInfoUsecase(sl()));
+  sl.registerLazySingleton(() => GetPlayerStatusUsecase(sl()));
+  sl.registerLazySingleton(() => GetPlayerSubsUsecase(sl()));
 
   // Provider
 
@@ -44,7 +51,8 @@ Future<void> init() async {
 
   // DataSources
 
-  sl.registerLazySingleton<PlayerRemoteSource>(() => PlayerRemoteSourceImpl());
+  sl.registerLazySingleton<PlayerRemoteSource>(
+      () => PlayerRemoteSourceImpl(sharedPrefs: sl()));
   sl.registerLazySingleton<PlayerLocalSource>(
       () => PlayerLocalSourceImpl(playerDatabase: sl()));
 
@@ -59,43 +67,93 @@ Future<void> init() async {
 
   // External
 
+  final sharedPrefs = await SharedPreferences.getInstance();
+  sl.registerLazySingleton(() => sharedPrefs);
 
   final Database playerdb = await openDatabase(
     await join(await getDatabasesPath(), PLAYER_DATABASE),
     version: 1,
     onCreate: (db, version) {
       db.execute(
-          'CREATE TABLE IF NOT EXISTS $PLAYER_STATS_TABLE (id PRIMARY KEY)');
-      db.execute('CREATE TABLE IF NOT EXISTS $OFFERS_TABLE '
-          '(id PRIMARY KEY, '
+          'CREATE TABLE IF NOT EXISTS $PLAYER_STATS_TABLE (serial PRIMARY KEY, '
+          'FullName TEXT, '
+          'Phone TEXT, '
+          'SubscribeDate TEXT, '
+          'Weight FLOAT, '
+          'Height FLOAT, '
+          'isSubscribed INTEGER, '
+          'isTakenContainer INTEGER, '
+          'SubscribeEndDate TEXT, '
+          'GenderMale INTEGER, '
+          'Balance FLOAT)');
+      db.execute(
+          'CREATE TABLE IF NOT EXISTS $OFFERS_TABLE (serial PRIMARY KEY, '
+          'id INTEGER, '
           'name TEXT, '
           'percent FLOAT, '
-          'endDate DATE)');
-      db.execute('CREATE TABLE IF NOT EXISTS $SPORTS_TABLE (id PRIMARY KEY, '
+          'FullPay INTEGER, '
+          'endDate TEXT)');
+      db.execute(
+          'CREATE TABLE IF NOT EXISTS $SPORTS_TABLE (serial PRIMARY KEY, '
+          'id INTEGER, '
           'name Text, '
           'price INTEGER, '
           'daysInWeek INTEGER, '
-          'dailyPrice FLOAT, '
-          'isActive BOOL)');
-      db.execute('CREATE TABLE IF NOT EXISTS $TRAINERS_TABLE (id PRIMARY KEY, '
-          'fullName TEXT, '
-          'phoneNum TEXT, '
-          'genderMale BOOL)');
-      db.execute('CREATE TABLE IF NOT EXISTS $TRAININGS_TABLE (id PRIMARY KEY, '
-          'apiKey INTEGER , '
-          'name TEXT, '
-          'muscle TEXT, '
-          'counter INTEGER, '
+          'DailyPrice FLOAT, '
+          'isActive INTEGER)');
+      db.execute(
+          'CREATE TABLE IF NOT EXISTS $TRAINERS_TABLE (serial PRIMARY KEY, '
+          'id INTEGER, '
+          'FullName TEXT, '
+          'Phone TEXT, '
+          'GenderMale INTEGER)');
+      db.execute(
+          'CREATE TABLE IF NOT EXISTS $TRAINING_RESOURCE_TABLE (serial PRIMARY KEY, '
+          'LastCheck TEXT, '
+          'trainer TEXT, '
+          'sport TEXT, '
+          'rollDate TEXT, '
+          'Price INTEGER, '
+          'Offer TEXT, '
+          'PriceAfterOffer FLOAT)');
+      db.execute(
+          'CREATE TABLE IF NOT EXISTS $TRAININGS_TABLE (serial PRIMARY KEY, '
+          'program_id INTEGER , '
+          'training TEXT, '
+          'count INTEGER, '
           'rounds INTEGER, '
-          'catagory TEXT'
-          'isTimer BOOL)');
-      db.execute('CREATE TABLE IF NOT EXISTS $PROGRAMS_TABLE (id PTIMARY KEY, '
+          'category TEXT)');
+      db.execute(
+          'CREATE TABLE IF NOT EXISTS $PROGRAMS_TABLE (serial PRIMARY KEY, '
+          'program TEXT, '
           'trainingCatagory TEXT , '
-          'trainsApiIds TEXT)');
-      db.execute('CREATE TABLE IF NOT EXISTS $PAYMENTS_TABLE (id PRIMARY KEY, '
-          'paymentValue FLOAT, '
-          'payDate DATE, '
-          'description TEXT)');
+          'sport_id INTEGER, '
+          'id INTEGER)');
+
+      db.execute(
+          'CREATE TABLE IF NOT EXISTS $PAYMENTS_TABLE (serial PRIMARY KEY, '
+          'id INTEGER, '
+          'PaymentValue FLOAT, '
+          'PayDate TEXT, '
+          'des TEXT)');
+      db.execute(
+          'CREATE TABLE IF NOT EXISTS $METRICS_TABLE (serial PRIMARY KEY, '
+          'R_Humerus TEXT, '
+          'L_Humerus TEXT, '
+          'R_Arm TEXT, '
+          'L_Arm TEXT, '
+          'Shoulders TEXT, '
+          'Waist TEXT, '
+          'Weight TEXT, '
+          'Height TEXT, '
+          'Chest TEXT, '
+          'Hips TEXT, '
+          'Neck TEXT, '
+          'R_Thigh TEXT, '
+          'L_Thigh TEXT, '
+          'R_Leg TEXT, '
+          'L_Leg TEXT, '
+          'Check_Date TEXT)');
     },
   );
 

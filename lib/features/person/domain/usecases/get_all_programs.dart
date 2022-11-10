@@ -7,7 +7,7 @@ class GetAllProgramsUsecase {
   final PlayerRepository repository;
   const GetAllProgramsUsecase(this.repository);
 
-  Future<Either<Failure, TrainingProgram>> call() async {
+  Future<Either<Failure, List<TrainingProgram>>> call() async {
     return await repository.getCurrentProgram();
   }
 }

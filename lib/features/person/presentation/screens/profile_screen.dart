@@ -1,19 +1,53 @@
 import 'package:flutter/material.dart';
+import 'package:platinum/core/constants/strings.dart';
 import 'package:platinum/core/themes/main_theme.dart';
-import 'package:platinum/features/person/presentation/widgets/profile_screen/info_alert_window.dart';
+import 'package:platinum/features/person/data/models/player_model.dart';
+import 'package:platinum/features/person/domain/entities/player/player.dart';
+import 'package:platinum/features/person/domain/usecases/get_player_info.dart';
 import 'package:platinum/features/person/presentation/widgets/profile_screen/settings_item.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({Key? key}) : super(key: key);
+  const ProfileScreen({
+    Key? key,
+    required this.playerInfoUsecase,
+    required this.sharedPreferences,
+  }) : super(key: key);
 
   void showAlertWindow() {}
+
+  final GetPlayerInfoUsecase playerInfoUsecase;
+  final SharedPreferences sharedPreferences;
+
+  Future<Player> loadCurrentPlayer() async {
+    Player? player;
+    String? phone = await sharedPreferences.getString('phone');
+    if (phone != null) {
+      phone = phone.substring(4);
+      phone = '0' + phone;
+      print(phone);
+    }
+    final either = await playerInfoUsecase();
+    either.fold(
+      (l) {
+        throw Exception();
+      },
+      (r) {
+        var a = r.toMap();
+        a.remove('Phone');
+        a.addAll({'Phone': phone});
+        player = PlayerModel.fromJson(a);
+      },
+    );
+    return player as Player;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('Profile'),
+        title: Text('الحساب الشخصي'),
         elevation: 0.0,
         backgroundColor: Colors.white,
       ),
@@ -23,23 +57,30 @@ class ProfileScreen extends StatelessWidget {
           Expanded(
             flex: 1,
             child: Container(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Player Name',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 25,
-                        color: LightTheme.primaryColorLight),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Text('Ph: 0987654321'),
-                  ),
-                  Text('Age: 25'),
-                ],
-              ),
+              child: FutureBuilder<Player>(
+                  future: loadCurrentPlayer(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData)
+                      return Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            snapshot.data!.fullName,
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 25,
+                                color: LightTheme.primaryColorLight),
+                          ),
+                          Text(
+                            'الهاتف:' + ' ${snapshot.data!.phoneNum}',
+                            textDirection: TextDirection.rtl,
+                          ),
+                        ],
+                      );
+                    else {
+                      return Center(child: CircularProgressIndicator());
+                    }
+                  }),
             ),
           ),
           Expanded(
@@ -59,40 +100,67 @@ class ProfileScreen extends StatelessWidget {
                 children: [
                   SettingsItem(
                     onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return MyDialog();
-                        },
-                      );
+                      Navigator.pushNamed(context, '/home/profile/payment');
                     },
                     icon: Icon(
-                      Icons.settings,
+                      Icons.payments_rounded,
+                      color: Colors.green,
                     ),
                     label: Text(
-                      'Change Info',
+                      'المدفوعات',
+                      textDirection: TextDirection.rtl,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blueGrey,
+                      ),
+                    ),
+                  ),
+                  SettingsItem(
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/home/profile/subs');
+                    },
+                    icon: Icon(
+                      Icons.subject_sharp,
+                      color: Colors.red,
+                    ),
+                    label: Text(
+                      'الاشتراكات السابقة',
+                      textDirection: TextDirection.rtl,
                       style: TextStyle(
                           fontWeight: FontWeight.bold, color: Colors.blueGrey),
                     ),
                   ),
                   SettingsItem(
                     onPressed: () {},
-                    icon: Icon(Icons.alarm_add_rounded),
+                    icon: Icon(
+                      Icons.system_update,
+                      color: Colors.orange,
+                    ),
                     label: Text(
-                      'Add reminder',
+                      'التحقق من التحديثات',
+                      textDirection: TextDirection.rtl,
                       style: TextStyle(
-                          fontWeight: FontWeight.bold, color: Colors.blueGrey),
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blueGrey,
+                      ),
                     ),
                   ),
                   SettingsItem(
-                    onPressed: () {},
-                    icon: Icon(Icons.shield_outlined),
-                    label: Text('About'),
-                  ),
-                  SettingsItem(
-                    icon: Icon(Icons.system_update_outlined),
-                    label: Text('Check Update'),
-                    onPressed: () {},
+                    icon: Icon(
+                      Icons.shield_moon_sharp,
+                      color: Colors.blueGrey,
+                    ),
+                    label: Text(
+                      'حول',
+                      textDirection: TextDirection.rtl,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blueGrey,
+                      ),
+                    ),
+                    onPressed: () {
+                      Navigator.pushNamed(context, R_ABOUT);
+                    },
                   ),
                 ],
               ),

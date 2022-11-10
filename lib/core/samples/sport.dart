@@ -2,13 +2,15 @@ import 'package:equatable/equatable.dart';
 
 class Sport extends Equatable {
   final int? id;
+  final int apiKey;
   final String name;
   final int price, daysInWeek;
   final double dailyPrice;
-  final bool? isActive;
+  final int? isActive;
 
   const Sport({
     required this.id,
+    required this.apiKey,
     required this.dailyPrice,
     required this.daysInWeek,
     required this.name,
@@ -18,8 +20,9 @@ class Sport extends Equatable {
 
   factory Sport.fromJson(Map<String, dynamic> json) {
     return Sport(
-        id: json['id'],
-        dailyPrice: json['dailyPrice'],
+        id: json['serial'] ?? null,
+        apiKey: json['id'],
+        dailyPrice: double.parse(json['DailyPrice'].toString()),
         daysInWeek: json['daysInWeek'],
         name: json['name'],
         price: json['price']);
@@ -27,15 +30,16 @@ class Sport extends Equatable {
 
   Map<String, dynamic> toMap() {
     return {
+      'id': apiKey,
       'name': name,
       'price': price,
       'daysInWeek': daysInWeek,
-      'dailyPrice': dailyPrice,
+      'DailyPrice': dailyPrice,
       'isActive': isActive,
     };
   }
 
   @override
   // TODO: implement props
-  List<Object?> get props => [id, name, price, daysInWeek];
+  List<Object?> get props => [apiKey, name, price, daysInWeek];
 }
