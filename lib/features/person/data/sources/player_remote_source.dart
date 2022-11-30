@@ -1,6 +1,4 @@
 import 'dart:convert';
-
-import 'package:dartz/dartz.dart';
 import 'package:http/http.dart' as http;
 import 'package:platinum/core/constants/strings.dart';
 import 'package:platinum/core/errors/exceptions.dart';
@@ -11,7 +9,6 @@ import 'package:platinum/core/samples/player_training.dart';
 import 'package:platinum/core/samples/sport.dart';
 import 'package:platinum/core/samples/training_program.dart';
 import 'package:platinum/features/person/data/models/player_model.dart';
-import 'package:platinum/features/person/domain/entities/player/player.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 abstract class PlayerRemoteSource {

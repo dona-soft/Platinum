@@ -132,21 +132,21 @@ class _StatusScreenState extends State<StatusScreen> {
                                         width: 150,
                                       ),
                                       title: 'الرقبة',
-                                      status: '${currentStats.Neck} cm'),
+                                      status: '${i.Neck} cm'),
                                   BodyPart(
                                       image: Image.asset(
                                         body_parts[0],
                                         width: 150,
                                       ),
                                       title: 'أكتاف',
-                                      status: '${currentStats.Shoulders} cm'),
+                                      status: '${i.Shoulders} cm'),
                                   BodyPart(
                                       image: Image.asset(
                                         body_parts[1],
                                         width: 150,
                                       ),
                                       title: 'صدر',
-                                      status: '${currentStats.Chest} cm'),
+                                      status: '${i.Chest} cm'),
                                   BodyPart(
                                     image: Image.asset(
                                       body_parts[2],
@@ -154,10 +154,10 @@ class _StatusScreenState extends State<StatusScreen> {
                                     ),
                                     title: 'الذراعين',
                                     status:
-                                        'cm عضد ايسر ${currentStats.L_Arm}\n'
-                                        'cm عضد ايمن ${currentStats.R_Arm}\n'
-                                        'cm ساعد ايسر ${currentStats.L_Humerus}\n'
-                                        'cm ساعد ايمن ${currentStats.R_Humerus}',
+                                        'cm عضد ايسر ${i.L_Arm}\n'
+                                        'cm عضد ايمن ${i.R_Arm}\n'
+                                        'cm ساعد ايسر ${i.L_Humerus}\n'
+                                        'cm ساعد ايمن ${i.R_Humerus}',
                                   ),
                                   BodyPart(
                                       image: Image.asset(
@@ -165,14 +165,14 @@ class _StatusScreenState extends State<StatusScreen> {
                                         width: 150,
                                       ),
                                       title: 'الخصر',
-                                      status: '${currentStats.Waist} cm'),
+                                      status: '${i.Waist} cm'),
                                   BodyPart(
                                       image: Image.asset(
                                         body_parts[4],
                                         width: 150,
                                       ),
                                       title: 'المعدة',
-                                      status: '${currentStats.Hips} cm'),
+                                      status: '${i.Hips} cm'),
                                   BodyPart(
                                     image: Image.asset(
                                       body_parts[5],
@@ -180,8 +180,8 @@ class _StatusScreenState extends State<StatusScreen> {
                                     ),
                                     title: 'الفخذين',
                                     status:
-                                        'cm فخذ ايسر ${currentStats.L_Thigh}\n'
-                                        'cm فخذ ايمن ${currentStats.R_Thigh}',
+                                        'cm فخذ ايسر ${i.L_Thigh}\n'
+                                        'cm فخذ ايمن ${i.R_Thigh}',
                                   ),
                                   BodyPart(
                                     image: Image.asset(
@@ -190,8 +190,8 @@ class _StatusScreenState extends State<StatusScreen> {
                                     ),
                                     title: 'الساقين',
                                     status:
-                                        'cm ساق يسرى: ${currentStats.L_Leg}\n'
-                                        'cm ساق يمنى: ${currentStats.R_Leg}'
+                                        'cm ساق يسرى: ${i.L_Leg}\n'
+                                        'cm ساق يمنى: ${i.R_Leg}'
                                         '',
                                   ),
                                 ],

@@ -7,8 +7,6 @@ import 'package:platinum/core/themes/main_theme.dart';
 import 'package:platinum/features/person/domain/usecases/get_all_programs.dart';
 import 'package:platinum/features/person/domain/usecases/get_all_sports.dart';
 import 'package:platinum/features/person/presentation/widgets/loading_error.dart';
-import 'package:platinum/features/person/presentation/widgets/no_data_banner.dart';
-import 'package:platinum/features/person/presentation/widgets/training_screen/counter_dialog.dart';
 import 'package:platinum/features/person/presentation/widgets/training_screen/training_card.dart';
 import 'package:platinum/features/person/presentation/widgets/training_screen/toggle_list_item.dart';
 

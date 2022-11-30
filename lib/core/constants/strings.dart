@@ -12,7 +12,18 @@ const List<String> body_parts = [
   'icons/Tights.png',
   'icons/Leg.png',
 ];
-
+const ABOUT_MAIN = ''
+    'بالاتفاق بين نادي بلاتينوم وفريق دوناسوفت تم انشاء وتطوير هذا التطبيق'
+    'التطبيق مصمم بواجهات عرض مسؤولة عن إظهار كل ما يحتاجه اللاعب المشترك في نادي بلاتينوم مثل:\n'
+    '-إظهار اعلانات النادي من عروض وتخفيضات ومنتجات وغيرها.\n'
+    '-عرض الرياضات والمدربين الموجودين ضمن النادي بالاضافة الى البرنامج التدريبي الخاص باللاعب.'
+    '-يمكنك هذا التطبيق من متابعة اشتراكات الرياضات ومتابعة جميع مدفوعات اللاعب في النادي.\n'
+    '-رصيد اللاعب الموجود في القائمة الرئيسية هو دليل الأقساط المتراكمة لكل اشتراك شهري.\n';
+const ABOUT_COMPANY = ''
+    'تم تطوير التطبيق من قبل فريق دوناسوفت في عام 2022\n'
+    'جميع الحقوق محفوظة '
+    'DONASOFT TEAM 2022'
+    '';
 
 //  Navigation
 const R_SPLASH = '/splash';
@@ -26,15 +37,12 @@ const R_SUBS = '/home/profile/subs';
 const R_ABOUT = '/home/profile/about';
 const R_PAYMENT = '/home/profile/payment';
 
-
 //  Banners
 const trainingBanner = 'Training Days';
 const offersBanner = 'Offers';
 
-
 // DataBase name
 const PLAYER_DATABASE = 'Playerdb.db';
-
 
 // DataBase Tables
 const PLAYER_STATS_TABLE = 'PlayerStats';
@@ -46,7 +54,6 @@ const PROGRAMS_TABLE = 'Programs';
 const TRAINING_RESOURCE_TABLE = 'trainingResource';
 const PAYMENTS_TABLE = 'Payments';
 const METRICS_TABLE = 'Status';
-
 
 // http Api Urls
 const HTTP_PLAYER_URL = 'https://platinum.dona-soft.com/api/player/view';
@@ -62,7 +69,6 @@ const HTTP_PLAYER_TRAININGS =
     'https://platinum.dona-soft.com/api/player/training';
 const HTTP_PLAYER_PAYMENTS =
     'https://platinum.dona-soft.com/api/player/payment';
-
 
 // Emotions
 const ANGRY = r'ಠ╭╮ಠ';

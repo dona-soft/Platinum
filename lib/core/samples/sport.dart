@@ -40,6 +40,5 @@ class Sport extends Equatable {
   }
 
   @override
-  // TODO: implement props
   List<Object?> get props => [apiKey, name, price, daysInWeek];
 }

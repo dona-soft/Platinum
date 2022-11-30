@@ -152,14 +152,14 @@ class PlayerRepositoryImpl implements PlayerRepository {
         final remoteRes = await remoteSource.getPlayerMetrics();
         await localSource.savePlayerMetrics(remoteRes);
         return Right(remoteRes);
-      } on ServerException catch (e) {
+      } on ServerException {
         return Left(ServerFailure());
       }
     } else {
       try {
         final localRes = await localSource.getPlayerMetrics();
         return Right(localRes);
-      } on EmptyCacheException catch (e) {
+      } on EmptyCacheException {
         return Left(EmptyCacheFailure());
       }
     }
@@ -183,6 +183,5 @@ class PlayerRepositoryImpl implements PlayerRepository {
         return Left(EmptyCacheFailure());
       }
     }
-    
   }
 }

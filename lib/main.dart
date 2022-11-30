@@ -26,6 +26,9 @@ void main() async {
   await Firebase.initializeApp();
   await di.init();
 
+  
+
+  // ignore: unused_local_variable
   final notifyService = LocalNotificationService();
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);

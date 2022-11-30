@@ -6,6 +6,8 @@ import 'package:platinum/features/person/domain/entities/player/player.dart';
 import 'package:platinum/features/person/domain/usecases/get_player_info.dart';
 import 'package:platinum/features/person/presentation/widgets/profile_screen/settings_item.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:upgrader/upgrader.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({
@@ -13,8 +15,6 @@ class ProfileScreen extends StatelessWidget {
     required this.playerInfoUsecase,
     required this.sharedPreferences,
   }) : super(key: key);
-
-  void showAlertWindow() {}
 
   final GetPlayerInfoUsecase playerInfoUsecase;
   final SharedPreferences sharedPreferences;
@@ -130,21 +130,23 @@ class ProfileScreen extends StatelessWidget {
                           fontWeight: FontWeight.bold, color: Colors.blueGrey),
                     ),
                   ),
-                  SettingsItem(
-                    onPressed: () {},
-                    icon: Icon(
-                      Icons.system_update,
-                      color: Colors.orange,
-                    ),
-                    label: Text(
-                      'التحقق من التحديثات',
-                      textDirection: TextDirection.rtl,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blueGrey,
-                      ),
-                    ),
-                  ),
+                  // SettingsItem(
+                  //   onPressed: () {
+                      
+                  //   },
+                  //   icon: Icon(
+                  //     Icons.system_update,
+                  //     color: Colors.orange,
+                  //   ),
+                  //   label: Text(
+                  //     'التحقق من التحديثات',
+                  //     textDirection: TextDirection.rtl,
+                  //     style: TextStyle(
+                  //       fontWeight: FontWeight.bold,
+                  //       color: Colors.blueGrey,
+                  //     ),
+                  //   ),
+                  // ),
                   SettingsItem(
                     icon: Icon(
                       Icons.shield_moon_sharp,

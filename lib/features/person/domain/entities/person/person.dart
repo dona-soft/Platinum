@@ -12,11 +12,6 @@ class Person extends Equatable {
     required this.genderMale,
   });
 
-  // TODO: implement age method
-  int age() {
-    return 0;
-  }
-
   @override
   List<Object?> get props => [id, fullName, phoneNum];
 }

@@ -160,7 +160,7 @@ class PlayerLocalSourceImpl implements PlayerLocalSource {
   /// useless right now...
   @override
   Future<Unit> saveCurrentProgram(List<TrainingProgram> tr) async {
-    List<Training> list = [];
+    
     Map<String, dynamic> program = {};
     if (playerDatabase.isOpen) {
       await playerDatabase.delete(PROGRAMS_TABLE);

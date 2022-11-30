@@ -117,8 +117,7 @@ class _LoginScreenState extends State<LoginScreen>
             });
             print(
                 'DEBUG >> Verification successful: ${phoneAuthCredential.smsCode} :: ${phoneAuthCredential.verificationId}');
-            var a =
-                await fireAuth.signInWithCredential(phoneAuthCredential).then(
+            await fireAuth.signInWithCredential(phoneAuthCredential).then(
               (value) {
                 print('userInfo: is New = ${value.additionalUserInfo}');
                 if (value.additionalUserInfo != null)

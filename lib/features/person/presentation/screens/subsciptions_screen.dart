@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:platinum/core/constants/strings.dart';
 import 'package:platinum/core/errors/exceptions.dart';
-import 'package:platinum/core/errors/failures.dart';
 import 'package:platinum/core/samples/player_training.dart';
 import 'package:platinum/core/themes/main_theme.dart';
 import 'package:platinum/features/person/domain/usecases/get_player_subs.dart';

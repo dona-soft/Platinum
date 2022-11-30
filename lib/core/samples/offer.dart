@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:equatable/equatable.dart';
 
 class Offer extends Equatable {
@@ -41,6 +39,5 @@ class Offer extends Equatable {
   }
 
   @override
-  // TODO: implement props
   List<Object?> get props => [apiKey, name, endDate];
 }

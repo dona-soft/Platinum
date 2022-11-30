@@ -1,10 +1,8 @@
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/widgets.dart';
 import 'package:platinum/core/themes/main_theme.dart';
 
 class AnimatedCircle extends StatelessWidget {
-  AnimatedCircle({
+  const AnimatedCircle({
     Key? key,
     required this.radius,
     this.top,
@@ -14,7 +12,7 @@ class AnimatedCircle extends StatelessWidget {
   }) : super(key: key);
 
   final double radius;
-  double? top, bottom, left, right;
+  final double? top, bottom, left, right;
   
 
   @override

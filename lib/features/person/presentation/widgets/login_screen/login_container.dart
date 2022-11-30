@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:platinum/core/themes/main_theme.dart';
 
+// ignore: must_be_immutable
 class LoginContainer extends StatelessWidget {
   LoginContainer({
     Key? key,
